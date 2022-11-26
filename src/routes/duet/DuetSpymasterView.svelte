@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DuetFieldType, generateDuetSpymaster } from '../../codenames/spymaster';
+  import { DuetFieldType, generateSpymaster } from '../../codenames/duet';
 
   export let seed = '';
   export let player: 'a' | 'b';
@@ -7,7 +7,7 @@
   let spymasterData: DuetFieldType[][];
 
   $: {
-    const cards = generateDuetSpymaster(seed);
+    const cards = generateSpymaster(seed);
     const playerCards = cards.map(([a, b]) => (player === 'a' ? a : b));
     spymasterData = [];
 

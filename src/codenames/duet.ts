@@ -1,4 +1,5 @@
-import seedrandom from 'seedrandom';
+import { pickRandom, shuffle } from '../util/random';
+import { WORDLISTS } from './wordlists/english';
 
 export enum DuetFieldType {
   Bystander = 'Bystander',
@@ -40,25 +41,10 @@ const DUET_ALL_FIELDS = [
   [DuetFieldType.Assassin, DuetFieldType.Bystander],
 ] as const;
 
-function numberUpTo(rng: seedrandom.PRNG, exclusiveMaximum: number): number {
-  return Math.floor(rng.quick() * exclusiveMaximum);
+export function generateSpymaster(seed: string): readonly DuetField[] {
+  return shuffle(DUET_ALL_FIELDS, seed);
 }
 
-export function generateDuetSpymaster(seed: string): readonly DuetField[] {
-  const rng = seedrandom(seed);
-
-  // Randomise the list using Fisher-Yates shuffle
-  const fields = DUET_ALL_FIELDS.slice();
-  for (let i = fields.length - 1; i >= 1; i--) {
-    const newPosition = numberUpTo(rng, i);
-    // console.log('swapping', i, newPosition);
-    if (i === newPosition) {
-      continue;
-    }
-    const tempValue = fields[newPosition];
-    fields[newPosition] = fields[i];
-    fields[i] = tempValue;
-  }
-
-  return fields;
+export function generateBoard(seed: string): string[] {
+  return pickRandom(WORDLISTS['English (Duet)'], 25, seed);
 }

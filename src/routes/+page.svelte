@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DuetSpymasterView from './p/DuetSpymasterView.svelte';
+  import DuetSpymasterView from './duet/DuetSpymasterView.svelte';
 
   const now = new Date();
 
