@@ -10,6 +10,11 @@
 
 <DuetBoardView {seed} {player} />
 
+<br />
+
 Seed: {seed}
 <br />
 Player {player === 'a' ? 'A' : 'B'}
+
+<br />
+<a href="/">Home</a>

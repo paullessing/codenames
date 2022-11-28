@@ -41,6 +41,32 @@ const DUET_ALL_FIELDS = [
   [DuetFieldType.Assassin, DuetFieldType.Bystander],
 ] as const;
 
+enum FieldState {
+  UNKNOWN,
+  GUESSED_A,
+  GUESSED_B,
+  GUESSED_BOTH,
+}
+
+class GameState {
+  private readonly state: readonly FieldState[];
+
+  constructor(state?: readonly FieldState[]) {
+    if (state) {
+      this.state = state;
+    } else {
+      this.state = new Array(25).fill(FieldState.UNKNOWN);
+    }
+  }
+
+  public guess(field: number, player: 'a' | 'b'): GameState {
+    const newValue = player === 'a' ? FieldState.GUESSED_A : FieldState.GUESSED_B;
+    // TODO consider validation
+    // TODO figure out new state from old value
+    return new GameState(this.state.map((_, index) => (index === field ? newValue : this.state[index])));
+  }
+}
+
 export function generateSpymaster(seed: string): readonly DuetField[] {
   return shuffle(DUET_ALL_FIELDS, seed);
 }
