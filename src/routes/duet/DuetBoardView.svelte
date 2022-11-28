@@ -1,20 +1,31 @@
 <script lang="ts">
-  import { DuetFieldType, generateSpymaster } from '../../codenames/duet';
+  import { DuetFieldType, generateBoard, generateSpymaster } from '../../codenames/duet';
 
   export let seed = '';
   export let player: 'a' | 'b';
 
-  let spymasterData: DuetFieldType[][];
+  let spymasterData: {
+    word: string;
+    field: DuetFieldType;
+  }[][];
 
   $: {
+    const words = generateBoard(seed);
     const cards = generateSpymaster(seed);
     const playerCards = cards.map(([a, b]) => (player === 'a' ? a : b));
     spymasterData = [];
 
     for (let i = 0; i < 5; i++) {
-      let row: DuetFieldType[] = [];
+      let row: {
+        word: string;
+        field: DuetFieldType;
+      }[] = [];
       for (let j = 0; j < 5; j++) {
-        row.push(playerCards[i * 5 + j]);
+        const index = i * 5 + j;
+        row.push({
+          word: words[index],
+          field: playerCards[index],
+        });
       }
       spymasterData.push(row);
     }
@@ -25,7 +36,7 @@
   {#each spymasterData as row}
     <tr>
       {#each row as entry}
-        <td class="cell {entry}">&nbsp;</td>
+        <td class="cell {entry.field}">{entry.word}</td>
       {/each}
     </tr>
   {/each}
@@ -33,15 +44,20 @@
 
 <style lang="scss">
   .cell {
-    width: 24px;
+    width: 20%;
     height: 16px;
+    font-family: sans-serif;
+    padding: 5px;
+    text-align: center;
 
     &.Agent {
       background-color: green;
+      color: white;
     }
 
     &.Assassin {
       background-color: #222;
+      color: white;
     }
 
     &.Bystander {

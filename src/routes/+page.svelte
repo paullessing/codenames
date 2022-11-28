@@ -1,6 +1,4 @@
 <script lang="ts">
-  import DuetSpymasterView from './duet/DuetSpymasterView.svelte';
-
   const now = new Date();
 
   let seed = `${now.getMonth() + 1}${now.getDate()}`;
@@ -9,10 +7,18 @@
 
 <h1>Code Names</h1>
 
-<input bind:value={seed} />
-<input bind:group={player} value="a" type="radio" />
-<input bind:group={player} value="b" type="radio" />
+<label>
+  Seed
+  <input bind:value={seed} />
+</label>
+<br />
+<label>
+  <input bind:group={player} value="a" type="radio" />
+  Player A
+</label><br />
+<label>
+  <input bind:group={player} value="b" type="radio" />
+  Player B
+</label><br />
 
-Player {player}
-
-<DuetSpymasterView bind:player bind:seed />
+<a href="duet/{seed}/{player}">Play Codenames: Duet</a>

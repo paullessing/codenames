@@ -1,8 +1,15 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import DuetSpymasterView from '../../DuetSpymasterView.svelte';
+  import { generateBoard } from '../../../../codenames/duet';
+  import DuetBoardView from '../../DuetBoardView.svelte';
 
   const { seed, player } = $page.params;
+
+  $: board = generateBoard(seed);
 </script>
 
-<DuetSpymasterView {seed} {player} />
+<DuetBoardView {seed} {player} />
+
+Seed: {seed}
+<br />
+Player {player === 'a' ? 'A' : 'B'}
