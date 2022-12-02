@@ -71,8 +71,37 @@ export class GameState {
   }
 
   public hash(): string {
-    return this.guesses.join('');
+    let result: number[] = [];
+    for (const guess of this.guesses) {
+      result = [...result, guess % 2, Math.floor(guess / 2)];
+    }
+
+    console.log('Result is', this.binaryToString(result));
+    return result.join('');
   }
+
+  private binaryToString(binary: number[]): string {
+    const characters = 'abcdefghkmnopqrstuvwxyz123456789';
+    let result = '';
+    const CHUNK_SIZE = 5;
+    for (let start = 0; start < binary.length; start += CHUNK_SIZE) {
+      let value = 0;
+      for (let i = 0; i < CHUNK_SIZE; i++) {
+        value <<= 1;
+        value += binary[start + i] ?? 0;
+      }
+      result += characters[value];
+    }
+    return result;
+  }
+
+  // private stringToBinary(value: string): number[] {
+  //   const characters = 'abcdefghkmnopqrstuvwxyz123456789';
+  // }
+
+  // public static fromHash(seed: string, hash: string): GameState {
+  //   return new GameState([]); // TODO
+  // }
 
   public guess(targetField: number, player: Player): GameState {
     console.log('Guessing', targetField, player);
