@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Player } from '../codenames/duet';
+  import { goto } from '$app/navigation';
 
   const now = new Date();
 
@@ -23,4 +24,4 @@
   Player B
 </label><br />
 
-<a href="duet/{seed}/{player}">Play Codenames: Duet</a>
+<button on:click={() => goto(`/duet/${seed}/${player}`)}>Play Codenames: Duet</button>

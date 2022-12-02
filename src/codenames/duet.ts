@@ -59,27 +59,41 @@ export enum GuessResult {
   ASSASSIN = 'assassin',
 }
 
-export class GameState {
-  private readonly guesses: readonly Guesses[];
+export class DuetGame {
+  private constructor(
+    private readonly words: readonly string[],
+    private readonly solution: readonly DuetField[],
+    private readonly guesses: readonly Guesses[]
+  ) {}
 
-  constructor(private readonly solution: readonly DuetField[], state?: readonly Guesses[]) {
-    if (state) {
-      this.guesses = state;
-    } else {
-      this.guesses = new Array(25).fill(Guesses.NONE);
-    }
+  public static create(seed: string): DuetGame {
+    const words = generateBoard(seed);
+    const solution = generateSpymaster(seed);
+    const guesses: Guesses[] = new Array(25).fill(Guesses.NONE);
+
+    return new DuetGame(words, solution, guesses);
   }
 
   public hash(): string {
     return this.guesses.join('');
   }
 
-  public guess(targetField: number, player: Player): GameState {
-    console.log('Guessing', targetField, player);
-    return new GameState(
+  public getWord(row: number, column: number): string {
+    return this.words[row * 5 + column];
+  }
+
+  public getSolution(row: number, column: number): DuetField {
+    return this.solution[row * 5 + column];
+  }
+
+  public guess(row: number, column: number, player: Player): DuetGame {
+    // console.log('Guessing', row, column, player);
+    const targetIndex = row * 5 + column;
+    return new DuetGame(
+      this.words,
       this.solution,
       this.guesses.map((currentValue: Guesses, index: number) => {
-        if (index !== targetField) {
+        if (index !== targetIndex) {
           return currentValue;
         }
         if (currentValue === Guesses.BOTH) {
@@ -108,12 +122,12 @@ export class GameState {
     );
   }
 
-  public getGuessResult(index: number): GuessResult {
-    if (index < 0 || index >= 25) {
+  public getGuessResult(row: number, column: number): GuessResult {
+    if (row < 0 || row >= 5 || column < 0 || column >= 5) {
       throw new Error('Index out of bounds');
     }
-    const guesses = this.guesses[index];
-    const solution = this.solution[index];
+    const guesses = this.guesses[row * 5 + column];
+    const solution = this.solution[row * 5 + column];
 
     // Note that guess A corresponds to solution 1, and vice versa
     // because each player sees the other person's solutions
@@ -134,19 +148,19 @@ export class GameState {
     return GuessResult.UNGUESSED;
   }
 
-  public getBystanders(index: number): Player[] {
-    if (index < 0 || index >= 25) {
+  public getBystanders(row: number, column: number): Player[] {
+    if (row < 0 || row >= 5 || column < 0 || column >= 5) {
       throw new Error('Index out of bounds');
     }
-    const state = this.guesses[index];
-    const solution = this.solution[index];
+    const guess = this.guesses[row * 5 + column];
+    const solution = this.solution[row * 5 + column];
 
     const bystanders = [];
 
-    if ((state === Guesses.A || state === Guesses.BOTH) && solution[1] === DuetFieldType.Bystander) {
+    if ((guess === Guesses.A || guess === Guesses.BOTH) && solution[1] === DuetFieldType.Bystander) {
       bystanders.push(Player.A);
     }
-    if ((state === Guesses.B || state === Guesses.BOTH) && solution[0] === DuetFieldType.Bystander) {
+    if ((guess === Guesses.B || guess === Guesses.BOTH) && solution[0] === DuetFieldType.Bystander) {
       bystanders.push(Player.B);
     }
     return bystanders;

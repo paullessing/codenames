@@ -1,82 +1,23 @@
 <script lang="ts">
-  import {
-    DuetFieldType,
-    GameState,
-    generateBoard,
-    generateSpymaster,
-    GuessResult,
-    Player,
-  } from '../../codenames/duet';
+  import { DuetGame, GuessResult, Player } from '../../codenames/duet';
+  import { createEventDispatcher } from 'svelte';
+  import { ViewMode } from './[seed]/[player]/view-mode.enum';
 
-  export let seed = '';
+  const dispatch = createEventDispatcher();
+
+  export let viewMode: ViewMode;
+  export let gameState: DuetGame;
   export let player: Player;
-  let activePlayer: Player = player;
 
-  export let viewMode: 'board' | 'spymaster' = 'board';
-
-  interface BoardField {
-    index: number;
-    word: string;
-    field: DuetFieldType;
-  }
-
-  let spymasterData: BoardField[][];
-
-  let confirmChoice: BoardField | null = null;
-
-  let words = generateBoard(seed);
-  let cards = generateSpymaster(seed);
-  let gameState: GameState = new GameState(cards);
-
-  $: {
-    const playerCards = cards.map(([a, b]) => (player === Player.A ? a : b));
-    spymasterData = [];
-
-    for (let i = 0; i < 5; i++) {
-      let row: BoardField[] = [];
-      for (let j = 0; j < 5; j++) {
-        const index = i * 5 + j;
-        row.push({
-          index,
-          word: words[index],
-          field: playerCards[index],
-        });
-      }
-      spymasterData.push(row);
-    }
-  }
-
-  const confirmSelection = () => {
-    if (!confirmChoice) {
-      return;
-    }
-
-    gameState = gameState.guess(confirmChoice.index, activePlayer);
-    const newState = gameState.getGuessResult(confirmChoice.index);
-
-    console.log(newState);
-    if (newState !== GuessResult.AGENT) {
-      console.log('switching player');
-      activePlayer = activePlayer === Player.A ? Player.B : Player.A;
-      if (activePlayer !== player) {
-        viewMode = 'spymaster';
-      } else {
-        viewMode = 'board';
-      }
-    }
-
-    confirmChoice = null;
-  };
-
-  $: getGuessCss = (entry: BoardField): string => {
-    const guessResult = gameState.getGuessResult(entry.index);
+  $: getGuessCss = (row: number, column: number): string => {
+    const guessResult = gameState.getGuessResult(row, column);
     if (guessResult === GuessResult.AGENT || guessResult === GuessResult.ASSASSIN) {
       return guessResult;
     }
-    if (viewMode === 'spymaster') {
-      return entry.field;
+    if (viewMode === ViewMode.SPYMASTER) {
+      return gameState.getSolution(row, column)[player === Player.A ? 0 : 1];
     } else {
-      if (~gameState.getBystanders(entry.index).indexOf(player)) {
+      if (~gameState.getBystanders(row, column).indexOf(player)) {
         return 'bystander'; // TODO this is very messy
       }
       return guessResult;
@@ -84,25 +25,15 @@
   };
 </script>
 
-Active Player:<br />
-<label>
-  <input bind:group={activePlayer} value={Player.A} type="radio" />
-  Player A{player === Player.A ? ' (You)' : ''}
-</label><br />
-<label>
-  <input bind:group={activePlayer} value={Player.B} type="radio" />
-  Player B{player === Player.B ? ' (You)' : ''}
-</label><br />
-
 <table style="margin-bottom: 2rem;">
-  {#each spymasterData as row}
+  {#each Array(5) as _, row}
     <tr>
-      {#each row as entry}
+      {#each Array(5) as _, column}
         <!-- TODO add a11y for this on:click handler if it sticks around -->
-        <td class="cell {getGuessCss(entry)}" on:click={() => (confirmChoice = entry)}
-          >{entry.word}{#if gameState.getBystanders(entry.index).length}
+        <td class="cell {getGuessCss(row, column)}" on:click={() => dispatch('guess', { row, column })}
+          >{gameState.getWord(row, column)}{#if gameState.getBystanders(row, column).length}
             <br />{gameState
-              .getBystanders(entry.index)
+              .getBystanders(row, column)
               .map((player) => `🤔${player.toLocaleUpperCase()}`)
               .join(', ')}
           {/if}</td
@@ -111,19 +42,6 @@ Active Player:<br />
     </tr>
   {/each}
 </table>
-
-{#if confirmChoice !== null}
-  <button on:click={confirmSelection}>Confirm {confirmChoice.word}</button>
-  <br />
-  <br />
-{/if}
-
-<button on:click={() => (viewMode = viewMode === 'board' ? 'spymaster' : 'board')}
-  >{viewMode === 'board' ? 'Spymaster View' : 'Board View'}</button
->
-
-<br />
-{gameState.hash()}
 
 <style lang="scss">
   .cell {

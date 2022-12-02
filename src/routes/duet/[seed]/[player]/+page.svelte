@@ -1,15 +1,14 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { generateBoard } from '../../../../codenames/duet';
-  import DuetBoardView from '../../DuetBoardView.svelte';
   import { Player } from '../../../../codenames/duet.js';
+  import DuetGame from './DuetGame.svelte';
 
   const { seed, player } = $page.params;
-
-  $: board = generateBoard(seed);
 </script>
 
-<DuetBoardView {seed} {player} />
+<h1>Code Names: Duet</h1>
+
+<DuetGame {seed} {player} />
 
 <br />
 
@@ -17,5 +16,7 @@ Seed: {seed}
 <br />
 Player {player === Player.A ? 'A' : 'B'}
 
+<br />
+<br />
 <br />
 <a href="/">Home</a>
