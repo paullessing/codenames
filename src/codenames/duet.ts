@@ -41,29 +41,115 @@ const DUET_ALL_FIELDS = [
   [DuetFieldType.Assassin, DuetFieldType.Bystander],
 ] as const;
 
-enum FieldState {
-  UNKNOWN,
-  GUESSED_A,
-  GUESSED_B,
-  GUESSED_BOTH,
+export const enum Player {
+  A = 'a',
+  B = 'b',
 }
 
-class GameState {
-  private readonly state: readonly FieldState[];
+enum Guesses {
+  NONE,
+  A,
+  B,
+  BOTH,
+}
 
-  constructor(state?: readonly FieldState[]) {
+export enum GuessResult {
+  UNGUESSED = 'unguessed',
+  AGENT = 'agent',
+  ASSASSIN = 'assassin',
+}
+
+export class GameState {
+  private readonly guesses: readonly Guesses[];
+
+  constructor(private readonly solution: readonly DuetField[], state?: readonly Guesses[]) {
     if (state) {
-      this.state = state;
+      this.guesses = state;
     } else {
-      this.state = new Array(25).fill(FieldState.UNKNOWN);
+      this.guesses = new Array(25).fill(Guesses.NONE);
     }
   }
 
-  public guess(field: number, player: 'a' | 'b'): GameState {
-    const newValue = player === 'a' ? FieldState.GUESSED_A : FieldState.GUESSED_B;
-    // TODO consider validation
-    // TODO figure out new state from old value
-    return new GameState(this.state.map((_, index) => (index === field ? newValue : this.state[index])));
+  public hash(): string {
+    return this.guesses.join('');
+  }
+
+  public guess(targetField: number, player: Player): GameState {
+    console.log('Guessing', targetField, player);
+    return new GameState(
+      this.solution,
+      this.guesses.map((currentValue: Guesses, index: number) => {
+        if (index !== targetField) {
+          return currentValue;
+        }
+        if (currentValue === Guesses.BOTH) {
+          throw new Error('Cannot guess, already guessed both');
+        }
+        if (player === Player.A) {
+          switch (currentValue) {
+            case Guesses.A:
+              throw new Error('Cannot guess this field, already guessed');
+            case Guesses.B:
+              return Guesses.BOTH;
+            default:
+              return Guesses.A;
+          }
+        } else {
+          switch (currentValue) {
+            case Guesses.A:
+              return Guesses.BOTH;
+            case Guesses.B:
+              throw new Error('Cannot guess this field, already guessed');
+            default:
+              return Guesses.B;
+          }
+        }
+      })
+    );
+  }
+
+  public getGuessResult(index: number): GuessResult {
+    if (index < 0 || index >= 25) {
+      throw new Error('Index out of bounds');
+    }
+    const guesses = this.guesses[index];
+    const solution = this.solution[index];
+
+    // Note that guess A corresponds to solution 1, and vice versa
+    // because each player sees the other person's solutions
+    if (
+      (solution[1] === DuetFieldType.Agent && guesses === Guesses.A) ||
+      (solution[0] === DuetFieldType.Agent && guesses === Guesses.B) ||
+      (solution.includes(DuetFieldType.Agent) && guesses === Guesses.BOTH)
+    ) {
+      return GuessResult.AGENT;
+    }
+    if (
+      (solution[1] === DuetFieldType.Assassin && guesses === Guesses.A) ||
+      (solution[0] === DuetFieldType.Assassin && guesses === Guesses.B) ||
+      (solution.includes(DuetFieldType.Assassin) && guesses === Guesses.BOTH)
+    ) {
+      return GuessResult.ASSASSIN;
+    }
+    return GuessResult.UNGUESSED;
+  }
+
+  public getBystanders(index: number): Player[] {
+    if (index < 0 || index >= 25) {
+      throw new Error('Index out of bounds');
+    }
+    const state = this.guesses[index];
+    const solution = this.solution[index];
+
+    const bystanders = [];
+
+    if ((state === Guesses.A || state === Guesses.BOTH) && solution[1] === DuetFieldType.Bystander) {
+      bystanders.push(Player.A);
+    }
+    if ((state === Guesses.B || state === Guesses.BOTH) && solution[0] === DuetFieldType.Bystander) {
+      bystanders.push(Player.B);
+    }
+    return bystanders;
   }
 }
 

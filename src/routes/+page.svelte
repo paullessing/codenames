@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { Player } from '../codenames/duet';
+
   const now = new Date();
 
   let seed = `${now.getMonth() + 1}${now.getDate()}`;
-  let player = 'a';
+  let player: Player = Player.A;
 </script>
 
 <h1>Code Names</h1>
@@ -13,11 +15,11 @@
 </label>
 <br />
 <label>
-  <input bind:group={player} value="a" type="radio" />
+  <input bind:group={player} value={Player.A} type="radio" />
   Player A
 </label><br />
 <label>
-  <input bind:group={player} value="b" type="radio" />
+  <input bind:group={player} value={Player.B} type="radio" />
   Player B
 </label><br />
 

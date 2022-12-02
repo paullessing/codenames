@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import { generateBoard } from '../../../../codenames/duet';
   import DuetBoardView from '../../DuetBoardView.svelte';
+  import { Player } from '../../../../codenames/duet.js';
 
   const { seed, player } = $page.params;
 
@@ -14,7 +15,7 @@
 
 Seed: {seed}
 <br />
-Player {player === 'a' ? 'A' : 'B'}
+Player {player === Player.A ? 'A' : 'B'}
 
 <br />
 <a href="/">Home</a>
