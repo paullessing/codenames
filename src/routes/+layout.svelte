@@ -1,0 +1,47 @@
+<slot />
+
+<style lang="scss">
+  :global {
+    body {
+      font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+    }
+
+    .typewriter-title {
+      font-family: 'Special Elite', cursive;
+    }
+
+    .text-input {
+      padding: 8px;
+      font-size: 1.5rem;
+      border-radius: 4px;
+      border: none;
+      background-color: beige;
+      box-shadow: inset 2px 2px 4px rgba(#000, 0.2);
+    }
+
+    .radio-button {
+      & > input {
+        display: none;
+      }
+
+      &__label {
+        display: inline-block;
+        padding: 8px;
+        color: white;
+        font-size: 1.5rem;
+
+        border-radius: 4px;
+        background-color: #555;
+        box-shadow: 2px 2px 4px 0 rgba(#000, 0.2);
+        z-index: -1;
+
+        input:checked ~ & {
+          background-color: #ccc;
+          color: inherit;
+          box-shadow: inset 2px 2px 4px rgba(#000, 0.2);
+        }
+      }
+    }
+  }
+</style>

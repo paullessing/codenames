@@ -8,20 +8,26 @@
   let player: Player = Player.A;
 </script>
 
-<h1>Code Names</h1>
+<h1 class="page-title">Codenames: Duet</h1>
 
 <label>
   Seed
-  <input bind:value={seed} />
+  <input class="text-input" bind:value={seed} />
 </label>
 <br />
-<label>
+<label class="radio-button">
   <input bind:group={player} value={Player.A} type="radio" />
-  Player A
+  <span class="radio-button__label">Player A</span>
 </label><br />
-<label>
+<label class="radio-button">
   <input bind:group={player} value={Player.B} type="radio" />
-  Player B
+  <span class="radio-button__label">Player B</span>
 </label><br />
 
 <button on:click={() => goto(`/duet/${seed}/${player}`)}>Play Codenames: Duet</button>
+
+<style lang="scss">
+  .page-title {
+    font-family: 'Special Elite', cursive;
+  }
+</style>

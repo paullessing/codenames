@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DuetGame, GuessResult, Player } from '../../../../codenames/duet';
-  import DuetBoardView from '../../DuetBoardView.svelte';
+  import DuetBoard from '../../DuetBoardView.svelte';
   import { ViewMode } from './view-mode.enum';
 
   export let seed = '';
@@ -12,6 +12,10 @@
   let confirmChoice: { row: number; column: number } | null = null;
 
   let gameState: DuetGame = DuetGame.create(seed);
+
+  const guess = ({ detail: { row, column } }) => {
+    confirmChoice = { row, column };
+  };
 
   const confirmSelection = () => {
     if (!confirmChoice) {
@@ -44,12 +48,7 @@ Active Player:<br />
   Player B{player === Player.B ? ' (You)' : ''}
 </label><br />
 
-<DuetBoardView
-  {viewMode}
-  {gameState}
-  {player}
-  on:guess={({ detail: { row, column } }) => (confirmChoice = { row, column })}
-/>
+<DuetBoard {viewMode} {gameState} {player} on:guess={guess} />
 
 {#if confirmChoice !== null}
   <button on:click={confirmSelection}>Confirm {gameState.getWord(confirmChoice.row, confirmChoice.column)}</button>

@@ -3,7 +3,9 @@
   import { createEventDispatcher } from 'svelte';
   import { ViewMode } from './[seed]/[player]/view-mode.enum';
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    guess: { row: number; column: number };
+  }>();
 
   export let viewMode: ViewMode;
   export let gameState: DuetGame;
@@ -25,33 +27,44 @@
   };
 </script>
 
-<table style="margin-bottom: 2rem;">
+<div class="duet-board">
   {#each Array(5) as _, row}
-    <tr>
-      {#each Array(5) as _, column}
-        <!-- TODO add a11y for this on:click handler if it sticks around -->
-        <td class="cell {getGuessCss(row, column)}" on:click={() => dispatch('guess', { row, column })}
+    {#each Array(5) as _, column}
+      <div class="duet-board__cell">
+        <button class="card {getGuessCss(row, column)}" on:click={() => dispatch('guess', { row, column })}
           >{gameState.getWord(row, column)}{#if gameState.getBystanders(row, column).length}
             <br />{gameState
               .getBystanders(row, column)
               .map((player) => `🤔${player.toLocaleUpperCase()}`)
               .join(', ')}
-          {/if}</td
-        >
-      {/each}
-    </tr>
+          {/if}
+        </button>
+      </div>
+    {/each}
   {/each}
-</table>
+</div>
 
+<!--</table>-->
 <style lang="scss">
-  .cell {
-    width: 20%;
-    height: 16px;
+  .duet-board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 4px 4px;
+    max-width: 800px;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    min-height: 80px;
     font-family: sans-serif;
     padding: 5px;
     text-align: center;
 
     background-color: beige;
+
+    border-radius: 0.5rem;
 
     &.Agent {
       background-color: green;
