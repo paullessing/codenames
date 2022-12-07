@@ -9,12 +9,12 @@
 
   export let viewMode: ViewMode = ViewMode.BOARD;
 
-  let confirmChoice: { row: number; column: number } | null = null;
+  let confirmChoice: number | null = null;
 
   let gameState: DuetGame = DuetGame.create(seed);
 
-  const guess = ({ detail: { row, column } }) => {
-    confirmChoice = { row, column };
+  const guess = ({ detail: { index } }) => {
+    confirmChoice = index;
   };
 
   const confirmSelection = () => {
@@ -22,8 +22,8 @@
       return;
     }
 
-    gameState = gameState.guess(confirmChoice.row, confirmChoice.column, activePlayer);
-    const newState = gameState.getGuessResult(confirmChoice.row, confirmChoice.column);
+    gameState = gameState.guess(confirmChoice, activePlayer);
+    const newState = gameState.getGuessResult(confirmChoice);
 
     if (newState !== GuessResult.AGENT) {
       activePlayer = activePlayer === Player.A ? Player.B : Player.A;
@@ -48,10 +48,10 @@ Active Player:<br />
   Player B{player === Player.B ? ' (You)' : ''}
 </label><br />
 
-<DuetBoard {viewMode} {gameState} {player} on:guess={guess} />
+<DuetBoard {viewMode} {gameState} {player} pendingChoice={confirmChoice} on:guess={guess} />
 
 {#if confirmChoice !== null}
-  <button on:click={confirmSelection}>Confirm {gameState.getWord(confirmChoice.row, confirmChoice.column)}</button>
+  <button on:click={confirmSelection}>Confirm {gameState.getWord(confirmChoice)}</button>
   <br />
   <br />
 {/if}

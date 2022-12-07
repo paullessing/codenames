@@ -78,17 +78,17 @@ export class DuetGame {
     return this.guesses.join('');
   }
 
-  public getWord(row: number, column: number): string {
-    return this.words[row * 5 + column];
+  public getWord(index: number): string {
+    return this.words[index];
   }
 
-  public getSolution(row: number, column: number): DuetField {
-    return this.solution[row * 5 + column];
+  public getSolution(index: number): DuetField {
+    return this.solution[index];
   }
 
-  public guess(row: number, column: number, player: Player): DuetGame {
+  public guess(index: number, player: Player): DuetGame {
     // console.log('Guessing', row, column, player);
-    const targetIndex = row * 5 + column;
+    const targetIndex = index;
     return new DuetGame(
       this.words,
       this.solution,
@@ -122,12 +122,12 @@ export class DuetGame {
     );
   }
 
-  public getGuessResult(row: number, column: number): GuessResult {
-    if (row < 0 || row >= 5 || column < 0 || column >= 5) {
+  public getGuessResult(index: number): GuessResult {
+    if (index < 0 || index >= 25) {
       throw new Error('Index out of bounds');
     }
-    const guesses = this.guesses[row * 5 + column];
-    const solution = this.solution[row * 5 + column];
+    const guesses = this.guesses[index];
+    const solution = this.solution[index];
 
     // Note that guess A corresponds to solution 1, and vice versa
     // because each player sees the other person's solutions
@@ -148,12 +148,12 @@ export class DuetGame {
     return GuessResult.UNGUESSED;
   }
 
-  public getBystanders(row: number, column: number): Player[] {
-    if (row < 0 || row >= 5 || column < 0 || column >= 5) {
+  public getBystanders(index: number): Player[] {
+    if (index < 0 || index >= 25) {
       throw new Error('Index out of bounds');
     }
-    const guess = this.guesses[row * 5 + column];
-    const solution = this.solution[row * 5 + column];
+    const guess = this.guesses[index];
+    const solution = this.solution[index];
 
     const bystanders = [];
 
