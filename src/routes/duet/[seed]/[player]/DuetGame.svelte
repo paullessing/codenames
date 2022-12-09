@@ -2,6 +2,7 @@
   import { DuetGame, GuessResult, Player } from '../../../../codenames/duet';
   import DuetBoard from '../../DuetBoardView.svelte';
   import { ViewMode } from './view-mode.enum';
+  import { showToast } from '../../../../components/toast';
 
   export let seed = '';
   export let player: Player;
@@ -32,6 +33,9 @@
       } else {
         viewMode = ViewMode.BOARD;
       }
+      showToast({
+        text: `New player: ${activePlayer.toUpperCase()}`,
+      });
     }
 
     confirmChoice = null;

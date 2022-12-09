@@ -1,4 +1,11 @@
+<script>
+  import Toast from '../components/Toast.svelte';
+</script>
+
 <slot />
+
+<!--<button on:click={() => addMessage({ text: 'Hello world ' + Math.random() })}>Add Toast</button>-->
+<Toast />
 
 <style lang="scss">
   :global {
