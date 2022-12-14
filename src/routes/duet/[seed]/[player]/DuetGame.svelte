@@ -42,15 +42,16 @@
   };
 </script>
 
-Active Player:<br />
-<label>
-  <input bind:group={activePlayer} value={Player.A} type="radio" />
-  Player A{player === Player.A ? ' (You)' : ''}
-</label><br />
-<label>
-  <input bind:group={activePlayer} value={Player.B} type="radio" />
-  Player B{player === Player.B ? ' (You)' : ''}
-</label><br />
+<div style="margin-bottom: 1rem; text-align: center">
+  <div style="font-size: 0.8rem">Guessing:</div>
+  <div style="font-size: 2rem">
+    Player {activePlayer.toUpperCase()}
+    {#if player === activePlayer} (You){/if}
+  </div>
+  <button class="link-button" on:click={() => (activePlayer = activePlayer === Player.A ? Player.B : Player.A)}
+    >Switch</button
+  >
+</div>
 
 <DuetBoard {viewMode} {gameState} {player} pendingChoice={confirmChoice} on:guess={guess} />
 

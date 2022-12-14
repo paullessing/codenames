@@ -26,19 +26,29 @@
       return guessResult;
     }
   };
+
+  const clickCard = (index: number) => {
+    console.log('clicked', index);
+    if (gameState.canGuess(index, player)) {
+      dispatch('guess', { index });
+    }
+  };
 </script>
 
 <div class="duet-board">
   {#each Array(25) as _, index}
     <div class="duet-board__cell">
       <button
+        style="cursor: {gameState.canGuess(index, player) ? 'pointer' : 'default'}"
         class="card {getGuessCss(index)} {pendingChoice === index ? 'pending' : ''}"
-        on:click={() => dispatch('guess', { index })}
+        on:click={() => clickCard(index)}
         >{gameState.getWord(index)}{#if gameState.getBystanders(index).length}
-          <br />{gameState
-            .getBystanders(index)
-            .map((player) => `🤔${player.toLocaleUpperCase()}`)
-            .join(', ')}
+          <div style="font-size: 0.8em">
+            {gameState
+              .getBystanders(index)
+              .map((player) => `🤔${player.toLocaleUpperCase()}`)
+              .join(', ')}
+          </div>
         {/if}
       </button>
     </div>
@@ -109,8 +119,7 @@
 
     &.bystander {
       background-color: beige;
-      color: #999;
-      border: 4px black solid;
+      background: repeating-linear-gradient(-45deg, beige, beige 10px, #b3b3a1 10px, #b3b3a1 20px);
     }
 
     &.assassin {

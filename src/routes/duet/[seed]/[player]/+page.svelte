@@ -6,7 +6,7 @@
   const { seed, player } = $page.params;
 </script>
 
-<h1 class="typewriter-title">Codenames: Duet</h1>
+<h1 class="typewriter-title" style="text-align: center">Codenames: Duet</h1>
 
 <DuetGame {seed} {player} />
 

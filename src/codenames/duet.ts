@@ -86,6 +86,18 @@ export class DuetGame {
     return this.solution[index];
   }
 
+  public canGuess(index: number, player: Player): boolean {
+    const result = this.getGuessResult(index);
+    if (result !== GuessResult.UNGUESSED) {
+      console.log('Result is guessed', result);
+      return false;
+    }
+    if (this.getBystanders(index).includes(player)) {
+      return false;
+    }
+    return true;
+  }
+
   public guess(index: number, player: Player): DuetGame {
     // console.log('Guessing', row, column, player);
     const targetIndex = index;

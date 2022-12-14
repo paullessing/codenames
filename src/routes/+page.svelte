@@ -5,29 +5,56 @@
   const now = new Date();
 
   let seed = `${now.getMonth() + 1}${now.getDate()}`;
-  let player: Player = Player.A;
 </script>
 
-<h1 class="page-title">Codenames: Duet</h1>
+<div class="body">
+  <h1 class="page-title">Codenames: Duet</h1>
 
-<label>
-  Seed
-  <input class="text-input" bind:value={seed} />
-</label>
-<br />
-<label class="radio-button">
-  <input bind:group={player} value={Player.A} type="radio" />
-  <span class="radio-button__label">Player A</span>
-</label><br />
-<label class="radio-button">
-  <input bind:group={player} value={Player.B} type="radio" />
-  <span class="radio-button__label">Player B</span>
-</label><br />
+  <label class="labelled-input">
+    <span class="labelled-input__label">Seed</span>
+    <input class="text-input labelled-input__input" bind:value={seed} />
+  </label>
+  <br />
 
-<button on:click={() => goto(`/duet/${seed}/${player}`)}>Play Codenames: Duet</button>
+  <button class="button" on:click={() => goto(`/duet/${seed}/${Player.A}`)}>Player A</button>
+  <button class="button" on:click={() => goto(`/duet/${seed}/${Player.B}`)}>Player B</button>
+</div>
 
 <style lang="scss">
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   .page-title {
     font-family: 'Special Elite', cursive;
+  }
+
+  .labelled-input {
+    display: flex;
+    flex-direction: column;
+
+    &__label {
+      order: 2;
+      font-size: 0.8em;
+      color: #666;
+      padding-left: 0.5em;
+    }
+    &__input {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+    }
+  }
+
+  .button {
+    display: inline-block;
+    padding: 8px;
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+
+    border: none;
+    border-radius: 4px;
+    background-color: #555;
+    box-shadow: 2px 2px 4px 0 rgba(#000, 0.2);
   }
 </style>
