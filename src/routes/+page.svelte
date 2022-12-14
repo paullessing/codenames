@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Player } from '../codenames/duet';
+  import { Player } from '@codenames/duet';
   import { goto } from '$app/navigation';
 
   const now = new Date();

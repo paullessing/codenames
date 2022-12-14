@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Player } from '../../../../codenames/duet.js';
+  import { Player } from '@codenames/duet.js';
   import DuetGame from './DuetGame.svelte';
 
   const { seed, player } = $page.params;

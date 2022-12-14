@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { DuetGame, GuessResult, Player } from '../../../../codenames/duet';
+  import { DuetGame, GuessResult, Player } from '@codenames/duet';
   import DuetBoard from '../../DuetBoardView.svelte';
-  import { ViewMode } from './view-mode.enum';
-  import { showToast } from '../../../../components/toast';
+  import { ViewMode } from '../../view-mode.enum';
+  import { showToast } from '@components/toast';
 
   export let seed = '';
   export let player: Player;

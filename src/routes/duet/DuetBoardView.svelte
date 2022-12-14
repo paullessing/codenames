@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { DuetGame, GuessResult, Player } from '../../codenames/duet';
+  import { DuetGame, GuessResult, Player } from '@codenames/duet';
   import { createEventDispatcher } from 'svelte';
-  import { ViewMode } from './[seed]/[player]/view-mode.enum';
+  import { ViewMode } from './view-mode.enum';
 
   const dispatch = createEventDispatcher<{
     guess: { index: number };
