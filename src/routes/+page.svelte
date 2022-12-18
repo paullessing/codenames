@@ -42,6 +42,7 @@
     }
     &__input {
       font-family: 'Courier Prime', 'Courier New', monospace;
+      text-align: center;
     }
   }
 
