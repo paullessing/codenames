@@ -9,6 +9,11 @@
 
 <style lang="scss">
   :global {
+    :root {
+      --color-player-a: #041263;
+      --color-player-b: #810a0a;
+    }
+
     body {
       font-family: 'Open Sans', Helvetica, Arial, sans-serif;
       font-size: 16px;

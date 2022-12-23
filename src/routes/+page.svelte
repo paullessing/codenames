@@ -16,8 +16,8 @@
   </label>
   <br />
 
-  <button class="button" on:click={() => goto(`/duet/${seed}/${Player.A}`)}>Player A</button>
-  <button class="button" on:click={() => goto(`/duet/${seed}/${Player.B}`)}>Player B</button>
+  <button class="button button--player-a" on:click={() => goto(`/duet/${seed}/${Player.A}`)}>Player A</button>
+  <button class="button button--player-b" on:click={() => goto(`/duet/${seed}/${Player.B}`)}>Player B</button>
 </div>
 
 <style lang="scss">
@@ -57,5 +57,11 @@
     border-radius: 4px;
     background-color: #555;
     box-shadow: 2px 2px 4px 0 rgba(#000, 0.2);
+
+    @each $player in a, b {
+      &--player-#{$player} {
+        background-color: var(--color-player-#{$player});
+      }
+    }
   }
 </style>
