@@ -10,21 +10,11 @@
 
   export let viewMode: ViewMode = ViewMode.BOARD;
 
-  let confirmChoice: number | null = null;
-
   let gameState: DuetGame = DuetGame.create(seed);
 
-  const guess = ({ detail: { index } }) => {
-    confirmChoice = index;
-  };
-
-  const confirmSelection = () => {
-    if (!confirmChoice) {
-      return;
-    }
-
-    gameState = gameState.guess(confirmChoice, activePlayer);
-    const newState = gameState.getGuessResult(confirmChoice);
+  const guess = ({ detail: { index: guessPosition } }) => {
+    gameState = gameState.guess(guessPosition, activePlayer);
+    const newState = gameState.getGuessResult(guessPosition);
 
     if (newState !== GuessResult.AGENT) {
       activePlayer = activePlayer === Player.A ? Player.B : Player.A;
@@ -37,8 +27,6 @@
         text: `New player: ${activePlayer.toUpperCase()}`,
       });
     }
-
-    confirmChoice = null;
   };
 </script>
 
@@ -53,13 +41,7 @@
   >
 </div>
 
-<DuetBoard {viewMode} {gameState} {player} pendingChoice={confirmChoice} on:guess={guess} />
-
-{#if confirmChoice !== null}
-  <button on:click={confirmSelection}>Confirm {gameState.getWord(confirmChoice)}</button>
-  <br />
-  <br />
-{/if}
+<DuetBoard {viewMode} {gameState} {player} on:guess={guess} />
 
 <button on:click={() => (viewMode = viewMode === ViewMode.BOARD ? ViewMode.SPYMASTER : ViewMode.BOARD)}
   >{viewMode === ViewMode.BOARD ? 'Spymaster View' : 'Board View'}</button

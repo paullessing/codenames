@@ -10,7 +10,7 @@
   export let viewMode: ViewMode;
   export let gameState: DuetGame;
   export let player: Player;
-  export let pendingChoice: number | null = null;
+  let pendingChoice: number | null = null;
 
   $: getGuessCss = (index: number): string => {
     const guessResult = gameState.getGuessResult(index);
@@ -29,8 +29,15 @@
 
   const clickCard = (index: number) => {
     console.log('clicked', index);
-    if (gameState.canGuess(index, player)) {
+    if (!gameState.canGuess(index, player)) {
+      console.debug('Invalid index clicked', index);
+      return;
+    }
+    if (index === pendingChoice) {
       dispatch('guess', { index });
+      pendingChoice = null;
+    } else {
+      pendingChoice = index;
     }
   };
 </script>
@@ -54,6 +61,12 @@
     </div>
   {/each}
 </div>
+
+{#if pendingChoice !== null}
+  <p style="text-align: center; font-size: 1.2em;">
+    Click the card again to confirm {gameState.getWord(pendingChoice)}
+  </p>
+{/if}
 
 <!--</table>-->
 <style lang="scss">
