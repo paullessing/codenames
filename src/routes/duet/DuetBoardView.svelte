@@ -42,7 +42,7 @@
   };
 </script>
 
-<div class="duet-board">
+<div class="duet-board" class:duet-board--gameover={gameState.isGameOver()}>
   {#each Array(25) as _, index}
     <div class="duet-board__cell">
       <button
@@ -77,6 +77,10 @@
     gap: 4px 4px;
     max-width: 800px;
     margin: 0 auto;
+
+    &--gameover {
+      opacity: 0.8;
+    }
   }
 
   .card {
@@ -109,10 +113,6 @@
       }
     }
 
-    &.pending {
-      @include overlay(rgba(#000, 0.3));
-    }
-
     &.Agent {
       //background-color: green;
       //color: white;
@@ -143,6 +143,10 @@
 
     &.unguessed {
       background-color: beige;
+    }
+
+    &.pending {
+      @include overlay(rgba(#000, 0.3));
     }
   }
 </style>

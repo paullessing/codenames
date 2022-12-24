@@ -31,14 +31,18 @@
 </script>
 
 <div style="margin-bottom: 1rem; text-align: center">
-  <div style="font-size: 0.8rem">Guessing:</div>
-  <div style="font-size: 2rem">
-    Player {activePlayer.toUpperCase()}
-    {#if player === activePlayer} (You){/if}
-  </div>
-  <button class="link-button" on:click={() => (activePlayer = activePlayer === Player.A ? Player.B : Player.A)}
-    >Switch</button
-  >
+  {#if gameState.isGameOver()}
+    <div style="font-size: 2rem">Game Over</div>
+  {:else}
+    <div style="font-size: 0.8rem">Guessing:</div>
+    <div style="font-size: 2rem">
+      Player {activePlayer.toUpperCase()}
+      {#if player === activePlayer} (You){/if}
+    </div>
+    <button class="link-button" on:click={() => (activePlayer = activePlayer === Player.A ? Player.B : Player.A)}
+      >Switch</button
+    >
+  {/if}
 </div>
 
 <DuetBoard {viewMode} {gameState} {player} on:guess={guess} />

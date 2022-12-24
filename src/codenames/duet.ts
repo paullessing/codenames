@@ -60,11 +60,27 @@ export enum GuessResult {
 }
 
 export class DuetGame {
+  private readonly _isGameOver: boolean;
+
   private constructor(
     private readonly words: readonly string[],
     private readonly solution: readonly DuetField[],
     private readonly guesses: readonly Guesses[]
-  ) {}
+  ) {
+    console.log('Constructor called for DuetGame');
+    this._isGameOver = new Array(25)
+      .fill(null)
+      .reduce((isGameOver, _, index) => isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN, false);
+
+    new Array(25).fill(null).reduce((isGameOver, _, index) => {
+      console.table({
+        isGameOver,
+        index,
+        result: this.getGuessResult(index),
+      });
+      return isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN;
+    }, false);
+  }
 
   public static create(seed: string): DuetGame {
     const words = generateBoard(seed);
@@ -78,6 +94,10 @@ export class DuetGame {
     return this.guesses.join('');
   }
 
+  public isGameOver(): boolean {
+    return this._isGameOver;
+  }
+
   public getWord(index: number): string {
     return this.words[index];
   }
@@ -87,12 +107,16 @@ export class DuetGame {
   }
 
   public canGuess(index: number, player: Player): boolean {
+    if (this._isGameOver) {
+      return false;
+    }
     const result = this.getGuessResult(index);
     if (result !== GuessResult.UNGUESSED) {
-      console.log('Result is guessed', result);
+      console.debug('Result is guessed', result);
       return false;
     }
     if (this.getBystanders(index).includes(player)) {
+      console.debug('Already guessed bystanders', index);
       return false;
     }
     return true;
