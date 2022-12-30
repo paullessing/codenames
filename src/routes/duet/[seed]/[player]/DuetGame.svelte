@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DuetGame, GuessResult, Player } from '@codenames/duet';
-  import DuetBoard from '../../DuetBoardView.svelte';
+  import DuetBoard from './DuetBoardView.svelte';
   import { ViewMode } from '../../view-mode.enum';
   import { showToast } from '@components/toast';
 
@@ -18,9 +18,9 @@
     } else {
       return showSpymaster ? ViewMode.SPYMASTER : ViewMode.BOARD;
     }
-  }
+  };
 
-  const toggleSpymaster = (show: boolean) => () => showSpymaster = show;
+  const toggleSpymaster = (show: boolean) => () => (showSpymaster = show);
 
   const guess = ({ detail: { index: guessPosition } }) => {
     gameState = gameState.guess(guessPosition, activePlayer);
@@ -57,8 +57,8 @@
     on:mousedown={toggleSpymaster(true)}
     on:mouseup={toggleSpymaster(false)}
     on:touchstart={toggleSpymaster(true)}
-    on:touchend={toggleSpymaster(false)}
-  >Spymaster</button>
+    on:touchend={toggleSpymaster(false)}>Spymaster</button
+  >
 {/if}
 
 <!--<button on:click={() => (viewMode = viewMode === ViewMode.BOARD ? ViewMode.SPYMASTER : ViewMode.BOARD)}-->
