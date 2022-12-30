@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DuetGame, GuessResult, Player } from '@codenames/duet';
+  import { DuetFieldType, DuetGame, GuessResult, Player } from '@codenames/duet';
   import { createEventDispatcher } from 'svelte';
   import { ViewMode } from './view-mode.enum';
 
@@ -12,20 +12,42 @@
   export let player: Player;
   let pendingChoice: number | null = null;
 
-  $: getGuessCss = (index: number): string => {
-    const guessResult = gameState.getGuessResult(index);
-    if (guessResult === GuessResult.AGENT || guessResult === GuessResult.ASSASSIN) {
-      return guessResult;
+  $: cards = new Array(25).fill(null).map(
+    (
+      _,
+      index
+    ): {
+      index: number;
+      word: string;
+      solution: { player: DuetFieldType; spymaster: DuetFieldType };
+      result: { solution: GuessResult; bystanders: Player[] };
+    } => {
+      const [solution1, solution2] = gameState.getSolution(index);
+      const solution =
+        player === Player.A
+          ? {
+              player: solution1,
+              spymaster: solution2,
+            }
+          : {
+              player: solution2,
+              spymaster: solution1,
+            };
+      const guessResult = gameState.getGuessResult(index);
+      const bystanders = gameState.getBystanders(index);
+      const word = gameState.getWord(index);
+
+      return {
+        index,
+        word,
+        solution,
+        result: {
+          solution: guessResult,
+          bystanders,
+        },
+      };
     }
-    if (viewMode === ViewMode.SPYMASTER) {
-      return gameState.getSolution(index)[player === Player.A ? 0 : 1];
-    } else {
-      if (~gameState.getBystanders(index).indexOf(player)) {
-        return 'bystander'; // TODO this is very messy
-      }
-      return guessResult;
-    }
-  };
+  );
 
   const clickCard = (index: number) => {
     console.log('clicked', index);
@@ -40,25 +62,42 @@
       pendingChoice = index;
     }
   };
+
+  const mapFieldTypeToCssClass = (fieldType: DuetFieldType): string =>
+    ({
+      [DuetFieldType.Agent]: 'agent',
+      [DuetFieldType.Assassin]: 'assassin',
+      [DuetFieldType.Bystander]: 'bystander',
+    }[fieldType]);
+
+  const mapGuessToCssClass = (guess: GuessResult): string =>
+    ({
+      [GuessResult.AGENT]: 'agent',
+      [GuessResult.ASSASSIN]: 'assassin',
+      [GuessResult.UNGUESSED]: 'unguessed',
+    }[guess]);
 </script>
 
-<div class="duet-board" class:duet-board--gameover={gameState.isGameOver()}>
-  {#each Array(25) as _, index}
-    <div class="duet-board__cell">
-      <button
-        style="cursor: {gameState.canGuess(index, player) ? 'pointer' : 'default'}"
-        class="card {getGuessCss(index)} {pendingChoice === index ? 'pending' : ''}"
-        on:click={() => clickCard(index)}
-        >{gameState.getWord(index)}{#if gameState.getBystanders(index).length}
-          <div style="font-size: 0.8em">
-            {gameState
-              .getBystanders(index)
-              .map((player) => `🤔${player.toLocaleUpperCase()}`)
-              .join(', ')}
-          </div>
-        {/if}
-      </button>
-    </div>
+<div
+  class="duet-board"
+  class:duet-board--gameover={gameState.isGameOver()}
+  class:duet-board--spymaster={viewMode === ViewMode.SPYMASTER}
+>
+  {#each cards as card, index}
+    <button
+      style="cursor: {gameState.canGuess(index, player) ? 'pointer' : 'default'}"
+      class="duet-board__card duet-board__card--spymaster-{mapFieldTypeToCssClass(
+        card.solution.spymaster
+      )} duet-board__card--guess-{mapGuessToCssClass(card.result.solution)}"
+      class:duet-board__card--guess-bystander={card.result.bystanders.includes(player)}
+      class:duet-board__card--pending={pendingChoice === index}
+      on:click={() => clickCard(index)}
+      >{card.word}{#if card.result.bystanders.length}
+        <div style="font-size: 0.8em">
+          {card.result.bystanders.map((player) => `🤔${player.toLocaleUpperCase()}`).join(', ')}
+        </div>
+      {/if}
+    </button>
   {/each}
 </div>
 
@@ -68,7 +107,6 @@
   </p>
 {/if}
 
-<!--</table>-->
 <style lang="scss">
   .duet-board {
     display: grid;
@@ -81,72 +119,74 @@
     &--gameover {
       opacity: 0.8;
     }
-  }
 
-  .card {
-    width: 100%;
-    height: 100%;
-    min-height: 80px;
-    font-size: min(2.5vw, 1.2rem);
-    font-family: Rubik, 'Open Sans', Helvetica, Arial, sans-serif;
-    padding: 5px;
-    text-align: center;
+    &__card {
+      width: 100%;
+      height: 100%;
+      min-height: 80px;
+      font-size: min(2.5vw, 1.2rem);
+      font-family: Rubik, 'Open Sans', Helvetica, Arial, sans-serif;
+      padding: 5px;
+      text-align: center;
 
-    background-color: beige;
-    border: none;
-    box-shadow: 1px 1px 2px 1px rgba(#000, 0.3);
+      background-color: beige;
+      border: none;
+      box-shadow: 1px 1px 2px 1px rgba(#000, 0.3);
 
-    border-radius: 0.5rem;
+      border-radius: 0.5rem;
 
-    @mixin overlay($color) {
-      position: relative;
-      &::before {
-        display: block;
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        border-radius: inherit;
-        content: '';
-        background-color: $color;
+      @mixin overlay($color) {
+        position: relative;
+        &::before {
+          display: block;
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          border-radius: inherit;
+          content: '';
+          background-color: $color;
+        }
       }
-    }
 
-    &.Agent {
-      //background-color: green;
-      //color: white;
-      @include overlay(rgba(green, 0.3));
-    }
-    &.Assassin {
-      @include overlay(rgba(black, 0.3));
-    }
-    //&.Bystander {
-    //  background-color: beige;
-    //}
+      &--guess {
+        &-agent {
+          background-color: green;
+          color: transparent;
+          box-shadow: 1px 1px 2px 3px rgba(#000, 0.3);
+        }
 
-    &.agent {
-      background-color: green;
-      color: transparent;
-      box-shadow: 1px 1px 2px 3px rgba(#000, 0.3);
-    }
+        &-assassin {
+          background-color: #222;
+          color: white;
+        }
 
-    &.bystander {
-      background-color: beige;
-      background: repeating-linear-gradient(-45deg, beige, beige 10px, #b3b3a1 10px, #b3b3a1 20px);
-    }
+        &-unguessed {
+          background-color: beige;
+        }
 
-    &.assassin {
-      background-color: #222;
-      color: white;
-    }
+        .duet-board:not(.duet-board--spymaster) &-bystander {
+          background: repeating-linear-gradient(-45deg, beige, beige 10px, #b3b3a1 10px, #b3b3a1 20px);
+          background-color: beige;
+        }
+      }
 
-    &.unguessed {
-      background-color: beige;
-    }
+      .duet-board--spymaster & {
+        &--spymaster {
+          &-agent {
+            @include overlay(rgba(green, 0.3));
+          }
 
-    &.pending {
-      @include overlay(rgba(#000, 0.3));
+          &-assassin {
+            @include overlay(rgba(black, 0.3));
+          }
+        }
+      }
+
+      &--pending {
+        @include overlay(rgba(#000, 0.3));
+      }
     }
   }
 </style>

@@ -13,7 +13,6 @@
         dismissFirstToast();
       }, VISIBILITY_DURATION_MS);
       lastToast = value;
-      console.log('hiu');
     }
   });
 

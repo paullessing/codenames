@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { Player } from '@codenames/duet.js';
   import DuetGame from './DuetGame.svelte';
 
   const { seed, player } = $page.params;
@@ -12,11 +11,4 @@
 
 <br />
 
-Seed: {seed}
-<br />
-Player {player === Player.A ? 'A' : 'B'}
-
-<br />
-<br />
-<br />
 <a href="/">Home</a>

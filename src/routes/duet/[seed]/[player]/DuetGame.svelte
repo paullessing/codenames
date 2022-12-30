@@ -8,9 +8,19 @@
   export let player: Player;
   let activePlayer: Player = Player.A;
 
-  export let viewMode: ViewMode = ViewMode.BOARD;
+  let showSpymaster = false;
 
   let gameState: DuetGame = DuetGame.create(seed);
+
+  $: getViewMode = (): ViewMode => {
+    if (activePlayer !== player) {
+      return ViewMode.SPYMASTER;
+    } else {
+      return showSpymaster ? ViewMode.SPYMASTER : ViewMode.BOARD;
+    }
+  }
+
+  const toggleSpymaster = (show: boolean) => () => showSpymaster = show;
 
   const guess = ({ detail: { index: guessPosition } }) => {
     gameState = gameState.guess(guessPosition, activePlayer);
@@ -18,11 +28,6 @@
 
     if (newState !== GuessResult.AGENT) {
       activePlayer = activePlayer === Player.A ? Player.B : Player.A;
-      if (activePlayer !== player) {
-        viewMode = ViewMode.SPYMASTER;
-      } else {
-        viewMode = ViewMode.BOARD;
-      }
       showToast({
         text: `New player: ${activePlayer.toUpperCase()}`,
       });
@@ -45,10 +50,22 @@
   {/if}
 </div>
 
-<DuetBoard {viewMode} {gameState} {player} on:guess={guess} />
+<DuetBoard viewMode={getViewMode()} {gameState} {player} on:guess={guess} />
 
-<button on:click={() => (viewMode = viewMode === ViewMode.BOARD ? ViewMode.SPYMASTER : ViewMode.BOARD)}
-  >{viewMode === ViewMode.BOARD ? 'Spymaster View' : 'Board View'}</button
->
+{#if player === activePlayer}
+  <button
+    on:mousedown={toggleSpymaster(true)}
+    on:mouseup={toggleSpymaster(false)}
+    on:touchstart={toggleSpymaster(true)}
+    on:touchend={toggleSpymaster(false)}
+  >Spymaster</button>
+{/if}
+
+<!--<button on:click={() => (viewMode = viewMode === ViewMode.BOARD ? ViewMode.SPYMASTER : ViewMode.BOARD)}-->
+<!--  >{viewMode === ViewMode.BOARD ? 'Spymaster View' : 'Board View'}</button-->
+<!--&gt;-->
+<br />
+<br />
+<br />
 <br />
 {gameState.hash()}

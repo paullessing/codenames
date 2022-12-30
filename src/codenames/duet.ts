@@ -73,11 +73,11 @@ export class DuetGame {
       .reduce((isGameOver, _, index) => isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN, false);
 
     new Array(25).fill(null).reduce((isGameOver, _, index) => {
-      console.table({
-        isGameOver,
-        index,
-        result: this.getGuessResult(index),
-      });
+      // console.table({
+      //   isGameOver,
+      //   index,
+      //   result: this.getGuessResult(index),
+      // });
       return isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN;
     }, false);
   }
@@ -102,6 +102,10 @@ export class DuetGame {
     return this.words[index];
   }
 
+  /**
+   * Returns the solution for a field, regardless of whether it has been guessed.
+   * @param index Index for the field.
+   */
   public getSolution(index: number): DuetField {
     return this.solution[index];
   }
