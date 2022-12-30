@@ -193,14 +193,14 @@ export class DuetGame {
       throw new Error('Index out of bounds');
     }
     const guess = this.guesses[index];
-    const solution = this.solution[index];
+    const [solutionB, solutionA] = this.solution[index];
 
     const bystanders = [];
 
-    if ((guess === Guesses.A || guess === Guesses.BOTH) && solution[1] === DuetFieldType.Bystander) {
+    if (solutionA === DuetFieldType.Bystander && [Guesses.A, Guesses.BOTH].includes(guess)) {
       bystanders.push(Player.A);
     }
-    if ((guess === Guesses.B || guess === Guesses.BOTH) && solution[0] === DuetFieldType.Bystander) {
+    if (solutionB === DuetFieldType.Bystander && [Guesses.B, Guesses.BOTH].includes(guess)) {
       bystanders.push(Player.B);
     }
     return bystanders;
