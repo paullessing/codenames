@@ -26,12 +26,12 @@
       const solution =
         player === Player.A
           ? {
-              player: solution1,
-              spymaster: solution2,
-            }
-          : {
               player: solution2,
               spymaster: solution1,
+            }
+          : {
+              player: solution1,
+              spymaster: solution2,
             };
       const guessResult = gameState.getGuessResult(index);
       const bystanders = gameState.getBystanders(index);
