@@ -6,6 +6,14 @@
 
   export let seed = '';
   export let player: Player;
+  export let guesses: {
+    turns: number;
+    bystanders: number;
+  } = {
+    // TODO this is a placeholder
+    turns: 9,
+    bystanders: 7,
+  };
   let activePlayer: Player = Player.A;
 
   let showSpymaster = false;
@@ -19,6 +27,15 @@
       return showSpymaster ? ViewMode.SPYMASTER : ViewMode.BOARD;
     }
   };
+
+  $: turnsRemaining = new Array(guesses.turns - gameState.getTotalTurns()).fill(null).map((_, index) => {
+    const bystandersRemaining = guesses.bystanders - gameState.getBystanderGuessesUsed();
+    if (index >= bystandersRemaining) {
+      return '🧳';
+    } else {
+      return '🤔';
+    }
+  });
 
   const toggleSpymaster = (show: boolean) => () => (showSpymaster = show);
 
@@ -49,6 +66,14 @@
     >
   {/if}
 </div>
+
+<!--
+<div class="turns-remaining">
+  {#each turnsRemaining as turn}
+    {turn}
+  {/each}
+</div>
+-->
 
 <DuetBoard viewMode={getViewMode()} {gameState} {player} on:guess={guess} />
 

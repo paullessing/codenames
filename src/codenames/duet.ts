@@ -1,5 +1,6 @@
 import { pickRandom, shuffle } from '../util/random';
 import { WORDLISTS } from './wordlists/english';
+import { indexArray, sum } from '../util/array';
 
 export enum DuetFieldType {
   Bystander = 'Bystander',
@@ -68,11 +69,12 @@ export class DuetGame {
     private readonly guesses: readonly Guesses[]
   ) {
     console.log('Constructor called for DuetGame');
-    this._isGameOver = new Array(25)
-      .fill(null)
-      .reduce((isGameOver, _, index) => isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN, false);
+    this._isGameOver = indexArray(25).reduce(
+      (isGameOver, index) => isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN,
+      false
+    );
 
-    new Array(25).fill(null).reduce((isGameOver, _, index) => {
+    indexArray(25).reduce((isGameOver, index) => {
       // console.table({
       //   isGameOver,
       //   index,
@@ -88,6 +90,26 @@ export class DuetGame {
     const guesses: Guesses[] = new Array(25).fill(Guesses.NONE);
 
     return new DuetGame(words, solution, guesses);
+  }
+
+  public getTotalTurns(): number {
+    return this.guesses.reduce(
+      (total: number, guess: Guesses) =>
+        total +
+        {
+          [Guesses.NONE]: 0,
+          [Guesses.A]: 1,
+          [Guesses.B]: 1,
+          [Guesses.BOTH]: 2,
+        }[guess],
+      0
+    );
+  }
+
+  public getBystanderGuessesUsed(): number {
+    return indexArray(25)
+      .map((index) => this.getBystanders(index).length)
+      .reduce(sum());
   }
 
   public hash(): string {
