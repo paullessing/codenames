@@ -91,11 +91,11 @@
 >
   {#each cards as card, index}
     <button
-      style="cursor: {gameState.canGuess(index, player) ? 'pointer' : 'default'}"
+      style="cursor: {gameState.canGuess(index, gameState.currentPlayer) ? 'pointer' : 'default'}"
       class="duet-board__card duet-board__card--spymaster-{mapFieldTypeToCssClass(
         card.solution.spymaster
       )} duet-board__card--guess-{mapGuessToCssClass(card.result.solution)}"
-      class:duet-board__card--guess-bystander={card.result.bystanders.includes(player)}
+      class:duet-board__card--guess-own-bystander={card.result.bystanders.includes(player)}
       class:duet-board__card--pending={pendingChoice === index}
       on:click={() => clickCard(index)}
       >{card.word}{#if card.result.bystanders.length}

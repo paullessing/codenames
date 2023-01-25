@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { DuetGame, GuessResult, Player } from '@codenames/duet';
-  import DuetBoard from './DuetBoardView.svelte';
+  import { DuetGame, Player } from '@codenames/duet';
+  import DuetBoard from './DuetBoard.svelte';
   import { ViewMode } from '../../view-mode.enum';
   import { showToast } from '@components/toast';
 
@@ -14,14 +14,13 @@
     turns: 9,
     bystanders: 7,
   };
-  let activePlayer: Player = Player.A;
 
   let showSpymaster = false;
 
   let gameState: DuetGame = DuetGame.create(seed);
 
   $: getViewMode = (): ViewMode => {
-    if (activePlayer !== player) {
+    if (gameState.isStarted && gameState.currentPlayer !== player) {
       return ViewMode.SPYMASTER;
     } else {
       return showSpymaster ? ViewMode.SPYMASTER : ViewMode.BOARD;
@@ -40,30 +39,35 @@
   const toggleSpymaster = (show: boolean) => () => (showSpymaster = show);
 
   const guess = ({ detail: { index: guessPosition } }) => {
-    gameState = gameState.guess(guessPosition, activePlayer);
-    const newState = gameState.getGuessResult(guessPosition);
+    const previousPlayer = gameState.currentPlayer;
+    gameState = gameState.guess(guessPosition);
 
-    if (newState !== GuessResult.AGENT) {
-      activePlayer = activePlayer === Player.A ? Player.B : Player.A;
+    if (previousPlayer !== gameState.currentPlayer) {
       showToast({
-        text: `New player: ${activePlayer.toUpperCase()}`,
+        text: `New player: ${gameState.currentPlayer.toUpperCase()}`,
       });
     }
+  };
+
+  const startGame = (player: Player) => {
+    gameState = gameState.start(player);
   };
 </script>
 
 <div style="margin-bottom: 1rem; text-align: center">
   {#if gameState.isGameOver()}
     <div style="font-size: 2rem">Game Over</div>
-  {:else}
+  {:else if gameState.isStarted()}
     <div style="font-size: 0.8rem">Guessing:</div>
     <div style="font-size: 2rem">
-      Player {activePlayer.toUpperCase()}
-      {#if player === activePlayer} (You){/if}
+      Player {gameState.currentPlayer.toUpperCase()}
+      {#if player === gameState.currentPlayer} (You){/if}
     </div>
-    <button class="link-button" on:click={() => (activePlayer = activePlayer === Player.A ? Player.B : Player.A)}
-      >Switch</button
-    >
+  {:else}
+    <div>
+      <button class="button" on:click={() => startGame(Player.A)}>Player A Begins</button>
+      <button class="button" on:click={() => startGame(Player.B)}>Player B Begins</button>
+    </div>
   {/if}
 </div>
 
@@ -77,7 +81,7 @@
 
 <DuetBoard viewMode={getViewMode()} {gameState} {player} on:guess={guess} />
 
-{#if player === activePlayer}
+{#if !gameState.isStarted() || player === gameState.currentPlayer}
   <button
     class="button spymaster-button"
     title="Show Spymaster View"

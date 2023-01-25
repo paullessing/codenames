@@ -47,6 +47,15 @@ export const enum Player {
   B = 'b',
 }
 
+function switchPlayer(player: Player): Player {
+  return player === Player.A ? Player.B : Player.A;
+}
+
+function getSolutionIndex(player: Player): 0 | 1 {
+  // Return the solution for this player's guesses, which is the other player's view
+  return player === Player.A ? 1 : 0;
+}
+
 enum Guesses {
   NONE,
   A,
@@ -60,28 +69,29 @@ export enum GuessResult {
   ASSASSIN = 'assassin',
 }
 
-export class DuetGame {
-  private readonly _isGameOver: boolean;
+enum GameState {
+  SETUP = 'SETUP',
+  IN_PROGRESS = 'IN_PROGRESS',
+  GAME_OVER = 'GAME_OVER',
+}
 
+export class DuetGame {
   private constructor(
+    public readonly currentPlayer: Player,
+    private readonly gameState: GameState,
     private readonly words: readonly string[],
     private readonly solution: readonly DuetField[],
     private readonly guesses: readonly Guesses[]
   ) {
     console.log('Constructor called for DuetGame');
-    this._isGameOver = indexArray(25).reduce(
+    this.gameState = indexArray(25).reduce(
       (isGameOver, index) => isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN,
       false
-    );
+    )
+      ? GameState.GAME_OVER
+      : gameState;
 
-    indexArray(25).reduce((isGameOver, index) => {
-      // console.table({
-      //   isGameOver,
-      //   index,
-      //   result: this.getGuessResult(index),
-      // });
-      return isGameOver || this.getGuessResult(index) === GuessResult.ASSASSIN;
-    }, false);
+    console.log(this);
   }
 
   public static create(seed: string): DuetGame {
@@ -89,7 +99,14 @@ export class DuetGame {
     const solution = generateSpymaster(seed);
     const guesses: Guesses[] = new Array(25).fill(Guesses.NONE);
 
-    return new DuetGame(words, solution, guesses);
+    return new DuetGame(Player.A, GameState.SETUP, words, solution, guesses);
+  }
+
+  public start(player?: Player): DuetGame {
+    if (this.gameState !== GameState.SETUP) {
+      throw new Error('Cannot start, already started');
+    }
+    return new DuetGame(player ?? this.currentPlayer, GameState.IN_PROGRESS, this.words, this.solution, this.guesses);
   }
 
   public getTotalTurns(): number {
@@ -116,8 +133,12 @@ export class DuetGame {
     return this.guesses.join('');
   }
 
+  public isStarted(): boolean {
+    return this.gameState !== GameState.SETUP;
+  }
+
   public isGameOver(): boolean {
-    return this._isGameOver;
+    return this.gameState === GameState.GAME_OVER;
   }
 
   public getWord(index: number): string {
@@ -133,7 +154,7 @@ export class DuetGame {
   }
 
   public canGuess(index: number, player: Player): boolean {
-    if (this._isGameOver) {
+    if (this.gameState !== GameState.IN_PROGRESS) {
       return false;
     }
     const result = this.getGuessResult(index);
@@ -148,39 +169,22 @@ export class DuetGame {
     return true;
   }
 
-  public guess(index: number, player: Player): DuetGame {
+  public guess(index: number): DuetGame {
     // console.log('Guessing', row, column, player);
     const targetIndex = index;
+
+    const currentValue = this.guesses[index];
+    const newValue: Guesses = addGuess(currentValue, this.currentPlayer);
+    const isAgent = this.solution[index][getSolutionIndex(this.currentPlayer)] === DuetFieldType.Agent;
+    const nextPlayer = isAgent ? this.currentPlayer : switchPlayer(this.currentPlayer);
+    console.log('New player:', nextPlayer, this.getGuessResult(index));
+
     return new DuetGame(
+      nextPlayer,
+      this.gameState,
       this.words,
       this.solution,
-      this.guesses.map((currentValue: Guesses, index: number) => {
-        if (index !== targetIndex) {
-          return currentValue;
-        }
-        if (currentValue === Guesses.BOTH) {
-          throw new Error('Cannot guess, already guessed both');
-        }
-        if (player === Player.A) {
-          switch (currentValue) {
-            case Guesses.A:
-              throw new Error('Cannot guess this field, already guessed');
-            case Guesses.B:
-              return Guesses.BOTH;
-            default:
-              return Guesses.A;
-          }
-        } else {
-          switch (currentValue) {
-            case Guesses.A:
-              return Guesses.BOTH;
-            case Guesses.B:
-              throw new Error('Cannot guess this field, already guessed');
-            default:
-              return Guesses.B;
-          }
-        }
-      })
+      this.guesses.map((currentValue: Guesses, index: number) => (index === targetIndex ? newValue : currentValue))
     );
   }
 
@@ -190,7 +194,10 @@ export class DuetGame {
     }
     const guesses = this.guesses[index];
     const solution = this.solution[index];
+    return this.getGuessResultForField(solution, guesses);
+  }
 
+  private getGuessResultForField(solution: readonly [agentA: DuetFieldType, agentB: DuetFieldType], guesses: Guesses) {
     // Note that guess A corresponds to solution 1, and vice versa
     // because each player sees the other person's solutions
     if (
@@ -235,4 +242,29 @@ export function generateSpymaster(seed: string): readonly DuetField[] {
 
 export function generateBoard(seed: string): string[] {
   return pickRandom(WORDLISTS['English (Duet)'], 25, seed);
+}
+
+function addGuess(guesses: Guesses, player: Player): Guesses {
+  if (guesses === Guesses.BOTH) {
+    throw new Error('Cannot guess, already guessed both');
+  }
+  if (player === Player.A) {
+    switch (guesses) {
+      case Guesses.A:
+        throw new Error('Cannot guess this field, already guessed');
+      case Guesses.B:
+        return Guesses.BOTH;
+      default:
+        return Guesses.A;
+    }
+  } else {
+    switch (guesses) {
+      case Guesses.A:
+        return Guesses.BOTH;
+      case Guesses.B:
+        throw new Error('Cannot guess this field, already guessed');
+      default:
+        return Guesses.B;
+    }
+  }
 }
