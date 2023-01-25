@@ -12,6 +12,12 @@
   export let player: Player;
   let pendingChoice: number | null = null;
 
+  $: {
+    if (viewMode === ViewMode.SPYMASTER) {
+      pendingChoice = null;
+    }
+  }
+
   $: cards = new Array(25).fill(null).map(
     (
       _,
@@ -166,7 +172,7 @@
           background-color: beige;
         }
 
-        .duet-board:not(.duet-board--spymaster) &-bystander {
+        .duet-board:not(.duet-board--spymaster) &-own-bystander {
           background: repeating-linear-gradient(-45deg, beige, beige 10px, #b3b3a1 10px, #b3b3a1 20px);
           background-color: beige;
         }
@@ -182,10 +188,16 @@
             @include overlay(rgba(black, 0.3));
           }
         }
+
+        &--guess-agent {
+          color: white;
+        }
       }
 
       &--pending {
-        @include overlay(rgba(#000, 0.3));
+        .duet-board:not(.duet-board--spymaster) & {
+          @include overlay(rgba(black, 0.2));
+        }
       }
     }
   }

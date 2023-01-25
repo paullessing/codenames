@@ -79,10 +79,12 @@
 
 {#if player === activePlayer}
   <button
+    class="button spymaster-button"
+    title="Show Spymaster View"
     on:mousedown={toggleSpymaster(true)}
     on:mouseup={toggleSpymaster(false)}
     on:touchstart={toggleSpymaster(true)}
-    on:touchend={toggleSpymaster(false)}>Spymaster</button
+    on:touchend={toggleSpymaster(false)}><span class="material-symbols-outlined">person_search</span></button
   >
 {/if}
 
@@ -94,3 +96,11 @@
 <br />
 <br />
 {gameState.hash()}
+
+<style lang="scss">
+  .spymaster-button {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+  }
+</style>

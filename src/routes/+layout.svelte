@@ -68,5 +68,20 @@
       padding: 0;
       margin: 0;
     }
+
+    .button {
+      background-color: beige;
+      border: none;
+      box-shadow: 1px 1px 2px 1px rgba(#000, 0.3);
+
+      border-radius: 0.5rem;
+
+      min-height: 40px;
+      padding: 16px;
+
+      &:active {
+        box-shadow: inset 1px 1px 2px 1px rgba(#000, 0.3);
+      }
+    }
   }
 </style>
