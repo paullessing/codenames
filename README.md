@@ -1,38 +1,27 @@
-# create-svelte
+# Codenames: Duet
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Implementation of the board game [Codenames: Duet](https://boardgamegeek.com/boardgame/224037/codenames-duet), the two-player version of [Codenames](https://boardgamegeek.com/boardgame/178900/codenames).
 
-## Creating a project
+This version of the game is intended for offline play as a PWA, and only requires a shared seed between two players to set up the same game.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Live builds are deployed here:
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+### [Play Codenames: Duet](https://codenames.lessi.ng)
 
-# create a new project in my-app
-npm create svelte@latest my-app
+## Build information
+
+This project is built using SvelteKit 1.0. Package management is handled using `yarn`.
+
+To run the dev mode:
+```sh
+yarn dev
 ```
+This will set up a live-reloading developer environment and run the game at [localhost:5173](http://localhost:5173).
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+To build a standalone deployable:
+```sh
+yarn build
 ```
+This creates a fully static site in the `build` directory.
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+On push to `main`, the latest version is automatically deployed to GitHub Pages and available at [https://codenames.lessi.ng](https://codenames.lessi.ng).
