@@ -20,7 +20,7 @@
   let gameState: DuetGame = DuetGame.create(seed);
 
   $: getViewMode = (): ViewMode => {
-    if (gameState.isStarted && gameState.currentPlayer !== player) {
+    if (gameState.isStarted() && gameState.currentPlayer !== player) {
       return ViewMode.SPYMASTER;
     } else {
       return showSpymaster ? ViewMode.SPYMASTER : ViewMode.BOARD;
