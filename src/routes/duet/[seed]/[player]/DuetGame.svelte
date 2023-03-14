@@ -106,5 +106,6 @@
     position: absolute;
     bottom: 2rem;
     right: 2rem;
+    user-select: none;
   }
 </style>
