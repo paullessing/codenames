@@ -65,8 +65,8 @@
     </div>
   {:else}
     <div>
-      <button class="button" on:click={() => startGame(Player.A)}>Player A Begins</button>
-      <button class="button" on:click={() => startGame(Player.B)}>Player B Begins</button>
+      <button class="button" on:click={() => startGame(Player.A)}>Player A guesses first</button>
+      <button class="button" on:click={() => startGame(Player.B)}>Player B guesses first</button>
     </div>
   {/if}
 </div>
