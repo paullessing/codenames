@@ -78,6 +78,7 @@ enum GameState {
 export class DuetGame {
   private constructor(
     public readonly currentPlayer: Player,
+    private readonly turnsTaken: number,
     private readonly gameState: GameState,
     private readonly words: readonly string[],
     private readonly solution: readonly DuetField[],
@@ -99,28 +100,25 @@ export class DuetGame {
     const solution = generateSpymaster(seed);
     const guesses: Guesses[] = new Array(25).fill(Guesses.NONE);
 
-    return new DuetGame(Player.A, GameState.SETUP, words, solution, guesses);
+    return new DuetGame(Player.A, 0, GameState.SETUP, words, solution, guesses);
   }
 
   public start(player?: Player): DuetGame {
     if (this.gameState !== GameState.SETUP) {
       throw new Error('Cannot start, already started');
     }
-    return new DuetGame(player ?? this.currentPlayer, GameState.IN_PROGRESS, this.words, this.solution, this.guesses);
+    return new DuetGame(
+      player ?? this.currentPlayer,
+      0,
+      GameState.IN_PROGRESS,
+      this.words,
+      this.solution,
+      this.guesses
+    );
   }
 
   public getTotalTurns(): number {
-    return this.guesses.reduce(
-      (total: number, guess: Guesses) =>
-        total +
-        {
-          [Guesses.NONE]: 0,
-          [Guesses.A]: 1,
-          [Guesses.B]: 1,
-          [Guesses.BOTH]: 2,
-        }[guess],
-      0
-    );
+    return this.turnsTaken;
   }
 
   public getBystanderGuessesUsed(): number {
@@ -176,11 +174,13 @@ export class DuetGame {
     const currentValue = this.guesses[index];
     const newValue: Guesses = addGuess(currentValue, this.currentPlayer);
     const isAgent = this.solution[index][getSolutionIndex(this.currentPlayer)] === DuetFieldType.Agent;
-    const nextPlayer = isAgent ? this.currentPlayer : switchPlayer(this.currentPlayer);
+    const endTurn = !isAgent;
+    const nextPlayer = endTurn ? switchPlayer(this.currentPlayer) : this.currentPlayer;
     console.log('New player:', nextPlayer, this.getGuessResult(index));
 
     return new DuetGame(
       nextPlayer,
+      this.turnsTaken + (endTurn ? 1 : 0),
       this.gameState,
       this.words,
       this.solution,
